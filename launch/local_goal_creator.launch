@@ -4,7 +4,7 @@
     <arg name="checkpoint_file" default="$(find local_goal_creator)/map/checkpoint/rwrc22_ikuta_checkpoint.yaml"/>
     <arg name="stopline_file" default="$(find local_goal_creator)/map/stop/rwrc22_ikuta_stop.yaml"/>
 
-    <node pkg="local_goal_creator" type="local_goal_creator_node" name="local_goal_creator_node" output="screen">
+    <node pkg="rwrc22_localgoal_creator" type="rwrc22_localgoal_creator_node" name="localgoal_creator_node" output="screen">
         <param name="start_node" value="39" />
         <param name="goal_node" value="39" />
         <param name="local_goal_interval" value="1.0" />

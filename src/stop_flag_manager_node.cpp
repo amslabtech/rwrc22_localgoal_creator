@@ -1,4 +1,4 @@
-#include "local_goal_creator/stop_flag_manager.h"
+#include "localgoal_creator/stop_flag_manager.h"
 
 int main(int argc, char **argv)
 {

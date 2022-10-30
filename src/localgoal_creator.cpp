@@ -1,4 +1,4 @@
-#include "local_goal_creator/local_goal_creator.h"
+#include "localgoal_creator/localgoal_creator.h"
 
 LocalGoalCreator::LocalGoalCreator() : nh_(),
                                        private_nh_("~")
