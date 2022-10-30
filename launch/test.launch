@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="bagfile" default="/home/amsl/bagfiles/ikuta_mcl3dl_2022-09-09-20-04-55.bag"/>
+
+    <rosparam param="/use_sim_time">true</rosparam>
+    <node name="rosbag_play" pkg="rosbag" type="play" args="$(arg bagfile)" />
+
+    <include file="$(find local_goal_creator)/launch/local_goal_creator.launch" />
+
+</launch>

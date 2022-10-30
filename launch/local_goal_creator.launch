@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <arg name="map_file" default="$(find local_goal_creator)/map/graph/rwrc22_ikuta_map.yaml"/>
+    <arg name="checkpoint_file" default="$(find local_goal_creator)/map/checkpoint/rwrc22_ikuta_checkpoint.yaml"/>
+    <arg name="stopline_file" default="$(find local_goal_creator)/map/stop/rwrc22_ikuta_stop.yaml"/>
+
+    <node pkg="local_goal_creator" type="local_goal_creator_node" name="local_goal_creator_node" output="screen">
+        <param name="start_node" value="39" />
+        <param name="goal_node" value="39" />
+        <param name="local_goal_interval" value="1.0" />
+        <param name="local_goal_dist" value="5.0" />
+        <param name="stop_radius_min" value="0.5" />
+        <remap from="/checkpoint" to="/node_edge_map/checkpoint" />
+        <remap from="/node_edge_map" to="/node_edge_map/map" />
+        <remap from="/current_pose" to="/amcl_pose" />
+    </node>
+
+    <node pkg="local_goal_creator" type="stop_flag_manager_node" name="stop_flag_manager_node2" output="screen">
+        <rosparam command="load" file="$(arg stopline_file)" />
+        <remap from="/current_node" to="/current_checkpoint" />
+    </node>
+
+    <!-- <node pkg="amsl_navigation_managers" type="node_edge_map_manager.py" name="node_edge_map_manager" ns="navigation_managers">
+        <param name="MAP_PATH" value="$(arg map_file)" />
+        <param name="HZ" value="10" />
+    </node> -->
+
+    <!-- <node pkg="amsl_navigation_managers" type="checkpoint_manager.py" name="checkpoint_manager" ns="navigation_managers">
+        <param name="CHECKPOINT_PATH" value="$(arg checkpoint_file)" />
+        <param name="HZ" value="10" />
+    </node> -->
+
+</launch>
