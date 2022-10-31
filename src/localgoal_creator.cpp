@@ -177,12 +177,25 @@ geometry_msgs::PoseStamped LocalGoalCreator::get_local_goal(std::vector<geometry
     // ROS_INFO("get_local_goal");
     double current_local_goal_x = node2node_poses[poses_index].pose.position.x;
     double current_local_goal_y = node2node_poses[poses_index].pose.position.y;
-    if (sqrt(pow(current_pose.pose.position.x - current_local_goal_x, 2) + pow(current_pose.pose.position.y - current_local_goal_y, 2)) < local_goal_dist_)
+
+    // if (sqrt(pow(current_pose.pose.position.x - current_local_goal_x, 2) + pow(current_pose.pose.position.y - current_local_goal_y, 2)) < local_goal_dist_)
+    // {
+    //     poses_index++;
+    //     if (poses_index >= node2node_poses.size())
+    //         poses_index = node2node_poses.size() - 1;
+    // }
+    int selected_index = poses_index;
+    for(int i = poses_index; i < node2node_poses.size(); i++)
     {
-        poses_index++;
-        if (poses_index >= node2node_poses.size())
-            poses_index = node2node_poses.size() - 1;
+        double goal_pose_x = node2node_poses[i].pose.position.x;
+        double goal_pose_y = node2node_poses[i].pose.position.y;
+        if(sqrt(pow(current_pose.pose.position.x - goal_pose_x, 2) + pow(current_pose.pose.position.y - goal_pose_y, 2)) < local_goal_dist_)
+            selected_index = i;
+        else
+            break;
     }
+    poses_index = selected_index;
+
     geometry_msgs::PoseStamped local_goal;
     local_goal.header.frame_id = "map";
     local_goal.header.stamp = ros::Time::now();
