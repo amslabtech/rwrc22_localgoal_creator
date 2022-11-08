@@ -9,6 +9,7 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
     private_nh_.param("local_goal_interval", local_goal_interval_, 1.0);
     private_nh_.param("local_goal_dist", local_goal_dist_, 5.0);
     private_nh_.param("local_goal_frame_id", local_goal_frame_id_, std::string("base_link"));
+    private_nh_.param("update_angle_threshold", update_angle_threshold_, M_PI / 2.0);
 
     checkpoint_sub_ = nh_.subscribe("/checkpoint", 1, &LocalGoalCreator::checkpoint_callback, this);
     node_edge_sub_ = nh_.subscribe("/node_edge_map", 1, &LocalGoalCreator::node_edge_callback, this);
@@ -129,9 +130,10 @@ bool LocalGoalCreator::reached_checkpoint(int current_checkpoint_id, int next_ch
 
     double angle_diff =atan2(current_pose_y - next_checkpoint_y, current_pose_x - next_checkpoint_x) - atan2(current_checkpoint_y - next_checkpoint_y, current_checkpoint_x - next_checkpoint_x);
     angle_diff = fabs(angle_diff);
+    if(angle_diff > M_PI) angle_diff -= 2*M_PI;
 
     bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < local_goal_dist_;
-    bool is_outside_angle = angle_diff > M_PI / 2;
+    bool is_outside_angle = angle_diff > update_angle_threshold_;
     return is_inside_dist || is_outside_angle;
 }
 

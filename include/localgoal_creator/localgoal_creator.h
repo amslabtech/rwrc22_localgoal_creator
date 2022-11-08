@@ -39,6 +39,7 @@ class LocalGoalCreator
         int goal_node_;
         double local_goal_interval_;
         double local_goal_dist_;
+        double update_angle_threshold_;
         std::string local_goal_frame_id_;
 
         // other params
