@@ -29,6 +29,7 @@ class LocalGoalCreator
 
         // other functions
         void get_node2node_poses(int node0_id, int node1_id, std::vector<geometry_msgs::PoseStamped>& node2node_poses);
+        void calc_checkpoint_update_threshold(int current_id, int next_id, int next2_id, double& threshold);
         bool reached_checkpoint(int current_checkpoint_id, int next_checkpoint_id, geometry_msgs::PoseStamped current_pose);
         geometry_msgs::PoseStamped get_local_goal(std::vector<geometry_msgs::PoseStamped> &node2node_poses, int &poses_index, geometry_msgs::PoseStamped current_pose);
         bool reached_goal(int goal_node_id, geometry_msgs::PoseStamped current_pose);
@@ -39,6 +40,7 @@ class LocalGoalCreator
         int goal_node_;
         double local_goal_interval_;
         double local_goal_dist_;
+        double stop_radius_min_;
         double update_angle_threshold_;
         std::string local_goal_frame_id_;
 
@@ -52,11 +54,13 @@ class LocalGoalCreator
         geometry_msgs::PoseStamped current_pose_;
         int current_checkpoint_id_;
         int next_checkpoint_id_;
+        int next2_checkpoint_id_;
         std::vector<int> node_id_list_;
         std::vector<geometry_msgs::PoseStamped> local_goal_poses_;
         int local_goal_index_;
         geometry_msgs::PoseStamped local_goal_;
         geometry_msgs::PoseStamped local_goal_base_link_;
+        double checkpoint_update_threshold_;
 
         // ros
         ros::NodeHandle nh_;
