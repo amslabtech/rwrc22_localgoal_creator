@@ -15,11 +15,6 @@
         <remap from="/current_pose" to="/amcl_pose" />
     </node>
 
-    <node pkg="local_goal_creator" type="stop_flag_manager_node" name="stop_flag_manager_node2" output="screen">
-        <rosparam command="load" file="$(arg stopline_file)" />
-        <remap from="/current_node" to="/current_checkpoint" />
-    </node>
-
     <!-- <node pkg="amsl_navigation_managers" type="node_edge_map_manager.py" name="node_edge_map_manager" ns="navigation_managers">
         <param name="MAP_PATH" value="$(arg map_file)" />
         <param name="HZ" value="10" />
