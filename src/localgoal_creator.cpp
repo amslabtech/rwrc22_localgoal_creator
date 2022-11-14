@@ -210,8 +210,6 @@ geometry_msgs::PoseStamped LocalGoalCreator::get_local_goal(std::vector<geometry
         double goal_pose_y = node2node_poses[i].pose.position.y;
         if (sqrt(pow(current_pose.pose.position.x - goal_pose_x, 2) + pow(current_pose.pose.position.y - goal_pose_y, 2)) < local_goal_dist_)
             selected_index = i;
-        else
-            break;
     }
     poses_index = selected_index;
 
