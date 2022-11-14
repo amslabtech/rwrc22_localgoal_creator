@@ -151,6 +151,27 @@ void LocalGoalCreator::calc_checkpoint_update_threshold(int current_id, int next
     }
 }
 
+void LocalGoalCreator::calc_checkpoint_update_angle_threshold(int current_id, int next_id, int next2_id, double &threshold)
+{
+    int current_idx = find(node_id_list_.begin(), node_id_list_.end(), current_id) - node_id_list_.begin();
+    int next_idx = find(node_id_list_.begin(), node_id_list_.end(), next_id) - node_id_list_.begin();
+    int next2_idx = find(node_id_list_.begin(), node_id_list_.end(), next2_id) - node_id_list_.begin();
+    double current_x = node_edge_map_.nodes[current_idx].point.x;
+    double current_y = node_edge_map_.nodes[current_idx].point.y;
+    double next_x = node_edge_map_.nodes[next_idx].point.x;
+    double next_y = node_edge_map_.nodes[next_idx].point.y;
+    double next2_x = node_edge_map_.nodes[next2_idx].point.x;
+    double next2_y = node_edge_map_.nodes[next2_idx].point.y;
+
+    double current2next = sqrt(pow(current_x - next_x, 2) + pow(current_y - next_y, 2));
+    double next2next2 = sqrt(pow(next_x - next2_x, 2) + pow(next_y - next2_y, 2));
+    double product = (next_x - current_x) * (next2_x - next_x) + (next_y - current_y) * (next2_y - next_y);
+    double cos_theta = product / (current2next * next2next2);
+    cos_theta = (1.0 - cos_theta) / 2.0; // 0.0(0 deg) ~ 0.5(90 deg) ~ 1.0(180 deg)
+
+    threshold = (1.0 - cos_theta) * M_PI / 2.0;
+}
+
 bool LocalGoalCreator::reached_checkpoint(int current_checkpoint_id, int next_checkpoint_id, geometry_msgs::PoseStamped current_pose)
 {
     // ROS_INFO("------------------------------------");
@@ -251,6 +272,7 @@ void LocalGoalCreator::process()
             {
                 get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
                 calc_checkpoint_update_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, checkpoint_update_threshold_);
+                calc_checkpoint_update_angle_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, update_angle_threshold_);
             }
 
             if (reached_checkpoint(current_checkpoint_id_, next_checkpoint_id_, current_pose_))
@@ -271,6 +293,7 @@ void LocalGoalCreator::process()
                 get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
                 local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
                 calc_checkpoint_update_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, checkpoint_update_threshold_);
+                calc_checkpoint_update_angle_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, update_angle_threshold_);
 
                 ROS_WARN("checkpoint updated");
                 ROS_WARN("current_checkpoint_id: %d", current_checkpoint_id_);
