@@ -204,7 +204,7 @@ bool LocalGoalCreator::reached_checkpoint(int current_checkpoint_id, int next_ch
     double angle_diff = cos_theta * M_PI;
 
     bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < checkpoint_update_threshold_;
-    bool is_outside_angle = angle_diff > update_angle_threshold_;
+    bool is_outside_angle = update_angle_threshold_ < M_PI / 4.0 ? false : angle_diff > update_angle_threshold_;
     return is_inside_dist || is_outside_angle;
 }
 
