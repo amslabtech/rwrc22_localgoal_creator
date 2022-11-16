@@ -186,18 +186,22 @@ bool LocalGoalCreator::reached_checkpoint(int current_checkpoint_id, int next_ch
     int next_checkpoint_idx = find(node_id_list_.begin(), node_id_list_.end(), next_checkpoint_id) - node_id_list_.begin();
     double next_checkpoint_x = node_edge_map_.nodes[next_checkpoint_idx].point.x;
     double next_checkpoint_y = node_edge_map_.nodes[next_checkpoint_idx].point.y;
-
     int current_checkpoint_idx = find(node_id_list_.begin(), node_id_list_.end(), current_checkpoint_id) - node_id_list_.begin();
     double current_checkpoint_x = node_edge_map_.nodes[current_checkpoint_idx].point.x;
     double current_checkpoint_y = node_edge_map_.nodes[current_checkpoint_idx].point.y;
-
     double current_pose_x = current_pose.pose.position.x;
     double current_pose_y = current_pose.pose.position.y;
 
-    double angle_diff = atan2(current_pose_y - next_checkpoint_y, current_pose_x - next_checkpoint_x) - atan2(current_checkpoint_y - next_checkpoint_y, current_checkpoint_x - next_checkpoint_x);
-    angle_diff = fabs(angle_diff);
-    if (angle_diff > M_PI)
-        angle_diff -= 2 * M_PI;
+    double next2current_checkpoint_x = current_checkpoint_x - next_checkpoint_x;
+    double next2current_checkpoint_y = current_checkpoint_y - next_checkpoint_y;
+    double next2current_pose_x = current_pose_x - next_checkpoint_x;
+    double next2current_pose_y = current_pose_y - next_checkpoint_y;
+    double next2current_checkpoint_dist = sqrt(pow(next2current_checkpoint_x, 2) + pow(next2current_checkpoint_y, 2));
+    double next2current_pose_dist = sqrt(pow(next2current_pose_x, 2) + pow(next2current_pose_y, 2));
+    double product = next2current_checkpoint_x * next2current_pose_x + next2current_checkpoint_y * next2current_pose_y;
+    double cos_theta = product / (next2current_checkpoint_dist * next2current_pose_dist); // 1.0(0 deg) ~ 0.0(90 deg) ~ -1.0(180 deg)
+    cos_theta = (1.0 - cos_theta) / 2.0; // 0.0(0 deg) ~ 0.5(90 deg) ~ 1.0(180 deg)
+    double angle_diff = cos_theta * M_PI;
 
     bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < checkpoint_update_threshold_;
     bool is_outside_angle = angle_diff > update_angle_threshold_;
