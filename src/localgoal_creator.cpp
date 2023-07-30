@@ -43,15 +43,15 @@ void LocalGoalCreator::checkpoint_callback(const std_msgs::Int32MultiArray::Cons
             next_checkpoint_id_ = checkpoint_.data[0];
             // if (next_checkpoint_id_ == start_node_)
             //     next_checkpoint_id_ = checkpoint_.data[1];
-            ROS_INFO("checkpoint size: %d", (int)checkpoint_.data.size());
+            // ROS_INFO("checkpoint size: %d", (int)checkpoint_.data.size());
             while (current_checkpoint_id_ == next_checkpoint_id_)
             {
                 checkpoint_.data.erase(checkpoint_.data.begin());
                 next_checkpoint_id_ = checkpoint_.data.size() > 0 ? checkpoint_.data[0] : -1;
                 next2_checkpoint_id_ = checkpoint_.data.size() > 1 ? checkpoint_.data[1] : -1;
-                ROS_INFO("current_checkpoint_id_ : %d", current_checkpoint_id_);
-                ROS_INFO("next_checkpoint_id_ : %d", next_checkpoint_id_);
-                ROS_INFO("checkpoint_.data.size() : %d", (int)checkpoint_.data.size());
+                // ROS_INFO("current_checkpoint_id_ : %d", current_checkpoint_id_);
+                // ROS_INFO("next_checkpoint_id_ : %d", next_checkpoint_id_);
+                // ROS_INFO("checkpoint_.data.size() : %d", (int)checkpoint_.data.size());
             }
         }
     }
@@ -113,7 +113,7 @@ void LocalGoalCreator::get_node2node_poses(int node0_id, int node1_id, std::vect
         node2node_pose.pose.orientation = tf::createQuaternionMsgFromYaw(direction);
         node2node_poses.push_back(node2node_pose);
 
-        ROS_INFO("node2node_pose: %f, %f", node2node_pose.pose.position.x, node2node_pose.pose.position.y);
+        // ROS_INFO("node2node_pose: %f, %f", node2node_pose.pose.position.x, node2node_pose.pose.position.y);
 
         if (node2node_poses.size() > 1e6)
             ROS_ERROR("node2node_poses.size() > 1e6");
@@ -203,7 +203,8 @@ bool LocalGoalCreator::reached_checkpoint(int current_checkpoint_id, int next_ch
     cos_theta = (1.0 - cos_theta) / 2.0; // 0.0(0 deg) ~ 0.5(90 deg) ~ 1.0(180 deg)
     double angle_diff = cos_theta * M_PI;
 
-    bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < checkpoint_update_threshold_;
+    bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < stop_radius_min_;
+    // bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < checkpoint_update_threshold_;
     bool is_outside_angle = update_angle_threshold_ < M_PI / 4.0 ? false : angle_diff > update_angle_threshold_;
     return is_inside_dist || is_outside_angle;
 }
