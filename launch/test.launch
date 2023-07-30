@@ -1,10 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
     <arg name="bagfile" default="/home/amsl/bagfiles/ikuta_mcl3dl_2022-09-09-20-04-55.bag"/>
+    <arg name="node_edge_map_file" default="$(find rwrc22_localgoal_creator)/map/graph/rwrc22_ikuta_map.yaml"/>
+    <arg name="checkpoint_file" default="$(find rwrc22_localgoal_creator)/map/checkpoint/rwrc22_ikuta_checkpoint.yaml"/>
 
     <rosparam param="/use_sim_time">true</rosparam>
-    <node name="rosbag_play" pkg="rosbag" type="play" args="$(arg bagfile)" />
 
-    <include file="$(find local_goal_creator)/launch/local_goal_creator.launch" />
+    <include file="$(find rwrc22_localgoal_creator)/launch/localgoal_creator.launch">
+        <arg name="start_node" value="39"/>
+        <arg name="goal_node" value="39"/>
+        <arg name="stop_radius_min" value="0.5"/>
+        <arg name="checkpoint_topic" value="/node_edge_map/checkpoint"/>
+        <arg name="node_edge_map_topic" value="/node_edge_map/map"/>
+        <arg name="pose_topic" value="/amcl_pose"/>
+    </include>
 
+    <node pkg="amsl_navigation_managers" type="node_edge_map_manager.py" name="node_edge_map_manager" ns="navigation_managers">
+        <param name="MAP_PATH" value="$(arg node_edge_map_file)" />
+        <param name="HZ" value="10" />
+    </node>
+    <node pkg="amsl_navigation_managers" type="checkpoint_manager.py" name="checkpoint_manager" ns="navigation_managers">
+        <param name="CHECKPOINT_PATH" value="$(arg checkpoint_file)" />
+        <param name="HZ" value="10" />
+    </node>
+
+    <node pkg="rosbag" type="play" name="rosbag_play" args="$(arg bagfile)"/>
+    <node pkg="rviz" type="rviz" name="localgoal_rviz" args="-d $(find rwrc22_localgoal_creator)/config/test.rviz"/>
 </launch>
