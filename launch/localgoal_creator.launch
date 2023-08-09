@@ -6,6 +6,8 @@
     <arg name="local_goal_interval" default="1.0"/>
     <arg name="local_goal_dist"     default="5.0"/>
     <arg name="stop_radius_min"     default="0.75"/>
+    <arg name="count_start_radius"  default="1.0"/>
+    <arg name="skip_timecount"      default="10.0"/>
     <!-- subscribe topic -->
     <arg name="checkpoint_topic"     default="/checkpoint"/>
     <arg name="node_edge_map_topic"  default="/node_edge_map"/>
@@ -23,6 +25,8 @@
         <param name="local_goal_interval" value="$(arg local_goal_interval)"/>
         <param name="local_goal_dist"     value="$(arg local_goal_dist)"/>
         <param name="stop_radius_min"     value="$(arg stop_radius_min)"/>
+        <param name="count_start_radius"  value="$(arg count_start_radius)"/>
+        <param name="skip_timecount"      value="$(arg skip_timecount)"/>
         <!-- topic -->
         <remap from="/checkpoint"         to="$(arg checkpoint_topic)"/>
         <remap from="/node_edge_map"      to="$(arg node_edge_map_topic)"/>
