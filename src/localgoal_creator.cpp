@@ -265,6 +265,24 @@ bool LocalGoalCreator::reached_goal(int goal_node_id, geometry_msgs::PoseStamped
         return false;
 }
 
+void LocalGoalCreator::update_checkpoint(int current_checkpoint_id, int next_checkpoint_id)
+{
+    local_goal_index_ = 0;
+    current_checkpoint_id = next_checkpoint_id;
+    while (current_checkpoint_id == next_checkpoint_id)
+    {
+        checkpoint_.data.erase(checkpoint_.data.begin());
+        next_checkpoint_id = checkpoint_.data.size() > 0 ? checkpoint_.data[0] : goal_node_;
+        next2_checkpoint_id_ = checkpoint_.data.size() > 1 ? checkpoint_.data[1] : goal_node_;
+    }
+    get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+    local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+
+    ROS_WARN("checkpoint updated");
+    ROS_WARN("current_checkpoint_id: %d", current_checkpoint_id);
+    ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id);
+}
+
 
 void LocalGoalCreator::process()
 {
@@ -342,55 +360,18 @@ void LocalGoalCreator::process()
                            // {
                            //     ROS_WARN("Checkpoint is empty");
                            /// }
-                           local_goal_index_ = 0;
-                           current_checkpoint_id_ = next_checkpoint_id_;
-                           while (current_checkpoint_id_ == next_checkpoint_id_)
-                           {
-                               checkpoint_.data.erase(checkpoint_.data.begin());
-                               next_checkpoint_id_ = checkpoint_.data.size() > 0 ? checkpoint_.data[0] : goal_node_;
-                               next2_checkpoint_id_ = checkpoint_.data.size() > 1 ? checkpoint_.data[1] : goal_node_;
-                           }
-                           get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-                           local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
-
-                           ROS_WARN("checkpoint updated");
-                           ROS_WARN("current_checkpoint_id: %d", current_checkpoint_id_);
-                           ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id_);
-
+                           ///
+                           update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
                            count_started_ = false;
                        }
                     }
-<<<<<<< HEAD
-                    else{
-                        count_started_=false;
-=======
                     else
                     {
->>>>>>> 43f9c1380ea6f9f69490a1f908c4eb373532a08c
+                        count_started_=false;
                         ROS_WARN("reached_checkpoint");
-                        // if (checkpoint_.data.size() == 0)
-                        // {
-                        //     ROS_WARN("Checkpoint is empty");
-                        // }
-                        local_goal_index_ = 0;
-                        current_checkpoint_id_ = next_checkpoint_id_;
-                        while (current_checkpoint_id_ == next_checkpoint_id_)
-                        {
-                            checkpoint_.data.erase(checkpoint_.data.begin());
-                            next_checkpoint_id_ = checkpoint_.data.size() > 0 ? checkpoint_.data[0] : goal_node_;
-                            next2_checkpoint_id_ = checkpoint_.data.size() > 1 ? checkpoint_.data[1] : goal_node_;
-                        }
-                        get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-                        local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
-
-                        ROS_WARN("checkpoint updated");
-                        ROS_WARN("current_checkpoint_id: %d", current_checkpoint_id_);
-                        ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id_);
+                         update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
                     }
-<<<<<<< HEAD
 
-=======
->>>>>>> 43f9c1380ea6f9f69490a1f908c4eb373532a08c
             }
             else
             {
