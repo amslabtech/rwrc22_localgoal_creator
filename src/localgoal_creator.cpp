@@ -366,9 +366,9 @@ void LocalGoalCreator::process()
                            // get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
                            // local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
                            // ROS_WARN("==========skip checkpoint==========");
-                           // std_msgs::Bool skip_flag;
-                           // skip_flag.data = true;
-                           // node_skip_flag_pub_.publish(skip_flag);
+                           std_msgs::Bool skip_flag;
+                           skip_flag.data = true;
+                           node_skip_flag_pub_.publish(skip_flag);
                            count_started_=false;
                            ROS_WARN("==========skip checkpoint==========");
                            update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
