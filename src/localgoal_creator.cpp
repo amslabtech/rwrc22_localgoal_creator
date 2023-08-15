@@ -25,6 +25,7 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
 
     local_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/local_goal", 1);
     current_checkpoint_id_pub_ = nh_.advertise<std_msgs::Int32>("/current_checkpoint", 1);
+    node_skip_flag_pub_ = nh_.advertise<std_msgs::Bool>("/node_skip_flag", 1);
 
     checkpoint_received_ = false;
     node_edge_map_received_ = false;
@@ -265,9 +266,8 @@ bool LocalGoalCreator::reached_goal(int goal_node_id, geometry_msgs::PoseStamped
         return false;
 }
 
-void LocalGoalCreator::update_checkpoint(int current_checkpoint_id, int next_checkpoint_id)
+void LocalGoalCreator::update_checkpoint(int &current_checkpoint_id, int &next_checkpoint_id)
 {
-    local_goal_index_ = 0;
     current_checkpoint_id = next_checkpoint_id;
     while (current_checkpoint_id == next_checkpoint_id)
     {
@@ -275,8 +275,6 @@ void LocalGoalCreator::update_checkpoint(int current_checkpoint_id, int next_che
         next_checkpoint_id = checkpoint_.data.size() > 0 ? checkpoint_.data[0] : goal_node_;
         next2_checkpoint_id_ = checkpoint_.data.size() > 1 ? checkpoint_.data[1] : goal_node_;
     }
-    get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-    local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
 
     ROS_WARN("checkpoint updated");
     ROS_WARN("current_checkpoint_id: %d", current_checkpoint_id);
@@ -290,7 +288,7 @@ void LocalGoalCreator::process()
     while (ros::ok())
     {
 
-        ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id_);
+        // ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id_);
         if (checkpoint_received_ && node_edge_map_received_ && current_pose_updated_)
         {
             // ROS_INFO("========================================");
@@ -351,25 +349,42 @@ void LocalGoalCreator::process()
                     }
 
                     if(not reached_checkpoint(stop_radius_min_, current_checkpoint_id_, next_checkpoint_id_, current_pose_)){
-                        ROS_WARN("Skip in  %lf seconds.", skip_timecount_ - (ros::Time::now()- t_start_).toSec());
+                        ROS_WARN("Skip in  %lf seconds.", (t_start_ + ros::Duration(skip_timecount_)- ros::Time::now()).toSec());
 
-                       if(skip_timecount_ < (ros::Time::now() - t_start_).toSec()){
+                        local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+                       if(t_start_ + ros::Duration(skip_timecount_) < ros::Time::now()){
+                       // if(skip_timecount_ - (ros::Time::now() - t_start_).nsec/std::pow(10, 9) <= 0){
 
+                           // count_started_ = false;
+                           // // if (checkpoint_.data.size() == 0)
+                           // // {
+                           // //     ROS_WARN("Checkpoint is empty");
+                           // /// }
+                           // ///
+                           // local_goal_index_ = 0;
+                           // update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+                           // get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+                           // local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+                           // ROS_WARN("==========skip checkpoint==========");
+                           // std_msgs::Bool skip_flag;
+                           // skip_flag.data = true;
+                           // node_skip_flag_pub_.publish(skip_flag);
+                           count_started_=false;
                            ROS_WARN("==========skip checkpoint==========");
-                           // if (checkpoint_.data.size() == 0)
-                           // {
-                           //     ROS_WARN("Checkpoint is empty");
-                           /// }
-                           ///
                            update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
-                           count_started_ = false;
+                           local_goal_index_ = 0;
+                           get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+                           local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
                        }
                     }
                     else
                     {
                         count_started_=false;
                         ROS_WARN("reached_checkpoint");
-                         update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+                        update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+                        local_goal_index_ = 0;
+                        get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+                        local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
                     }
 
             }

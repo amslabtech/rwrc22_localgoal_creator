@@ -9,12 +9,12 @@
     <include file="$(find rwrc22_localgoal_creator)/launch/localgoal_creator.launch">
         <arg name="start_node" value="39"/>
         <arg name="goal_node" value="39"/>
-        <arg name="stop_radius_min" value="5"/>
+        <arg name="stop_radius_min" value="0.5"/>
         <arg name="checkpoint_topic" value="/node_edge_map/checkpoint"/>
         <arg name="node_edge_map_topic" value="/node_edge_map/map"/>
         <arg name="pose_topic" value="/amcl_pose"/>
         <arg name="count_start_radius" value="10.0"/>
-        <arg name="skip_timecount" value="20.0"/>
+        <arg name="skip_timecount" value="10.0"/>
     </include>
 
     <node pkg="amsl_navigation_managers" type="node_edge_map_manager.py" name="node_edge_map_manager" ns="navigation_managers">
@@ -26,6 +26,6 @@
         <param name="HZ" value="10" />
     </node>
 
-    <node pkg="rosbag" type="play" name="rosbag_play" args="$(arg bagfile)"/>
+    <node pkg="rosbag" type="play" name="rosbag_play" args="$(arg bagfile) -r 3"/>
     <node pkg="rviz" type="rviz" name="localgoal_rviz" args="-d $(find rwrc22_localgoal_creator)/config/test.rviz"/>
 </launch>
