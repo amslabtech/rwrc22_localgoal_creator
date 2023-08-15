@@ -25,7 +25,7 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
 
     local_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/local_goal", 1);
     current_checkpoint_id_pub_ = nh_.advertise<std_msgs::Int32>("/current_checkpoint", 1);
-    node_skip_flag_pub_ = nh_.advertise<std_msgs::Bool>("/node_skip_flag", 1);
+    skip_node_flag_pub_ = nh_.advertise<std_msgs::Bool>("/skip_node_flag", 1);
 
     checkpoint_received_ = false;
     node_edge_map_received_ = false;
@@ -368,7 +368,7 @@ void LocalGoalCreator::process()
                            // ROS_WARN("==========skip checkpoint==========");
                            std_msgs::Bool skip_flag;
                            skip_flag.data = true;
-                           node_skip_flag_pub_.publish(skip_flag);
+                           skip_node_flag_pub_.publish(skip_flag);
                            count_started_=false;
                            ROS_WARN("==========skip checkpoint==========");
                            update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);

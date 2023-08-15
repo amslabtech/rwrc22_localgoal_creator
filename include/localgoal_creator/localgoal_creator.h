@@ -79,7 +79,7 @@ class LocalGoalCreator
         ros::Subscriber is_stop_node_flag_sub_;
         ros::Publisher local_goal_pub_;
         ros::Publisher current_checkpoint_id_pub_;
-        ros::Publisher node_skip_flag_pub_;
+        ros::Publisher skip_node_flag_pub_;
 
         // tf
         tf2_ros::Buffer tf_buffer_;
