@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <std_msgs/Int32MultiArray.h>
 #include <std_msgs/Int32.h>
+#include <std_msgs/Float64.h>
 #include <std_msgs/Bool.h>
 #include "amsl_navigation_msgs/NodeEdgeMap.h"
 #include "amsl_navigation_msgs/Node.h"
@@ -28,6 +29,7 @@ class LocalGoalCreator
         void node_edge_callback(const amsl_navigation_msgs::NodeEdgeMap::ConstPtr& msg);
         void current_pose_callback(const geometry_msgs::PoseWithCovarianceStamped::ConstPtr& msg);
         void is_stop_node_flag_callback(const std_msgs::Bool::ConstPtr& msg);
+        void local_goal_dist_callback(const std_msgs::Float64::ConstPtr& msg);
 
         // other functions
         void get_node2node_poses(int node0_id, int node1_id, std::vector<geometry_msgs::PoseStamped>& node2node_poses);
@@ -77,6 +79,7 @@ class LocalGoalCreator
         ros::Subscriber node_edge_sub_;
         ros::Subscriber current_pose_sub_;
         ros::Subscriber is_stop_node_flag_sub_;
+        ros::Subscriber local_goal_dist_sub_;
         ros::Publisher local_goal_pub_;
         ros::Publisher current_checkpoint_id_pub_;
         ros::Publisher skip_node_flag_pub_;

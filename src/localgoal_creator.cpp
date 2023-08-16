@@ -22,6 +22,7 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
     node_edge_sub_ = nh_.subscribe("/node_edge_map", 1, &LocalGoalCreator::node_edge_callback, this);
     current_pose_sub_ = nh_.subscribe("/current_pose", 1, &LocalGoalCreator::current_pose_callback, this);
     is_stop_node_flag_sub_ = nh_.subscribe("/is_stop_node_flag", 1, &LocalGoalCreator::is_stop_node_flag_callback, this);
+    local_goal_dist_sub_ = nh_.subscribe("/local_goal_dist", 1, &LocalGoalCreator::local_goal_dist_callback, this);
 
     local_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/local_goal", 1);
     current_checkpoint_id_pub_ = nh_.advertise<std_msgs::Int32>("/current_checkpoint", 1);
@@ -64,6 +65,11 @@ void LocalGoalCreator::checkpoint_callback(const std_msgs::Int32MultiArray::Cons
             }
         }
     }
+}
+
+void LocalGoalCreator::local_goal_dist_callback(const std_msgs::Float64::ConstPtr &msg)
+{
+    local_goal_dist_ = msg -> data;
 }
 
 void LocalGoalCreator::node_edge_callback(const amsl_navigation_msgs::NodeEdgeMap::ConstPtr &msg)
