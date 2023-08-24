@@ -3,13 +3,13 @@
     <!-- param -->
     <arg name="start_node"          default="0"/>
     <arg name="goal_node"           default="0"/>
-    <arg name="local_goal_interval" default="0.2"/>
-    <arg name="local_goal_dist"     default="7.0"/>
+    <arg name="local_goal_interval" default="1.0"/>
+    <arg name="local_goal_dist"     default="5.0"/>
     <arg name="stop_radius_min"     default="0.75"/>
-    <arg name="count_start_radius"  default="1.0"/>
+    <arg name="count_start_radius"  default="1.5"/>
     <arg name="skip_timecount"      default="7.0"/>
     <!-- subscribe topic -->
-    <arg name="checkpoint_topic"     default="node_edge_map/checkpoint"/>
+    <arg name="checkpoint_topic"     default="/node_edge_map/checkpoint"/>
     <arg name="node_edge_map_topic"  default="/node_edge_map"/>
     <arg name="pose_topic"           default="/current_pose"/>
     <arg name="stop_node_flag_topic" default="/is_stop_node_flag"/>
