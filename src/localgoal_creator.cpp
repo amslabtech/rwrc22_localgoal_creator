@@ -250,7 +250,7 @@ geometry_msgs::PoseStamped LocalGoalCreator::get_local_goal(std::vector<geometry
 
     try
     {
-        tf_buffer_.transform(local_goal, local_goal_base_link_, local_goal_frame_id_, ros::Duration(0.1));
+        tf_buffer_.transform(local_goal, local_goal_base_link_, local_goal_frame_id_, ros::Duration(1.0));
     }
     catch (tf2::TransformException &ex)
     {
@@ -321,7 +321,7 @@ void LocalGoalCreator::process()
                 geometry_msgs::PoseStamped goal_base_link;
                 try
                 {
-                    tf_buffer_.transform(goal, goal_base_link, local_goal_frame_id_, ros::Duration(0.1));
+                    tf_buffer_.transform(goal, goal_base_link, local_goal_frame_id_, ros::Duration(1.0));
                 }
                 catch (tf2::TransformException &ex)
                 {
