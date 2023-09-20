@@ -30,6 +30,7 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
     skip_node_flag_pub_ = nh_.advertise<std_msgs::Bool>("/skip_node_flag", 1);
     init_pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("/initialpose", 1);
 
+    checkpoint_initialized_ = false;
     checkpoint_received_ = false;
     node_edge_map_received_ = false;
     current_pose_updated_ = false;
@@ -313,6 +314,12 @@ void LocalGoalCreator::process()
     {
 
         // ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id_);
+        if (!checkpoint_initialized_ && checkpoint_received_ && node_edge_map_received_)
+        {
+            initialize_checkpoint();
+            checkpoint_initialized_ = true;
+        }
+
         if (checkpoint_received_ && node_edge_map_received_ && current_pose_updated_)
         {
             // ROS_INFO("========================================");

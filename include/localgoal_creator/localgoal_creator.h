@@ -55,6 +55,7 @@ class LocalGoalCreator
         ros::Time t_start_;
 
         // other params
+        bool checkpoint_initialized_;
         bool checkpoint_received_;
         bool node_edge_map_received_;
         bool current_pose_updated_;
