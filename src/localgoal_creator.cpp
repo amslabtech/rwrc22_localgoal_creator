@@ -27,6 +27,7 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
 
     local_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/local_goal", 1);
     current_checkpoint_id_pub_ = nh_.advertise<std_msgs::Int32>("/current_checkpoint", 1);
+    next_checkpoint_id_pub_ = nh_.advertise<std_msgs::Int32>("/next_checkpoint", 1);
     skip_node_flag_pub_ = nh_.advertise<std_msgs::Bool>("/skip_node_flag", 1);
     init_pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("/initialpose", 1);
 
@@ -358,6 +359,9 @@ void LocalGoalCreator::process()
                 std_msgs::Int32 current_checkpoint_id_msg;
                 current_checkpoint_id_msg.data = goal_node_;
                 current_checkpoint_id_pub_.publish(current_checkpoint_id_msg);
+                std_msgs::Int32 next_checkpoint_id_msg;
+                next_checkpoint_id_msg.data = goal_node_;
+                next_checkpoint_id_pub_.publish(next_checkpoint_id_msg);
 
                 continue;
             }
@@ -430,6 +434,9 @@ void LocalGoalCreator::process()
             std_msgs::Int32 current_checkpoint_id_msg;
             current_checkpoint_id_msg.data = current_checkpoint_id_;
             current_checkpoint_id_pub_.publish(current_checkpoint_id_msg);
+            std_msgs::Int32 next_checkpoint_id_msg;
+            current_checkpoint_id_msg.data = next_checkpoint_id_;
+            next_checkpoint_id_pub_.publish(next_checkpoint_id_msg);
         }
 
         ros::spinOnce();

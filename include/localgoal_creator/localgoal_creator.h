@@ -84,6 +84,7 @@ class LocalGoalCreator
         ros::Subscriber local_goal_dist_sub_;
         ros::Publisher local_goal_pub_;
         ros::Publisher current_checkpoint_id_pub_;
+        ros::Publisher next_checkpoint_id_pub_;
         ros::Publisher skip_node_flag_pub_;
         ros::Publisher init_pose_pub_;
 
