@@ -39,6 +39,7 @@ class LocalGoalCreator
         geometry_msgs::PoseStamped get_local_goal(std::vector<geometry_msgs::PoseStamped> &node2node_poses, int &poses_index, geometry_msgs::PoseStamped current_pose);
         bool reached_goal(int goal_node_id, geometry_msgs::PoseStamped current_pose);
         void update_checkpoint(int &current_checkpoint_id, int &next_checkpoint_id);
+        void initialize_checkpoint();
 
         // private params
         int hz_;
@@ -83,6 +84,7 @@ class LocalGoalCreator
         ros::Publisher local_goal_pub_;
         ros::Publisher current_checkpoint_id_pub_;
         ros::Publisher skip_node_flag_pub_;
+        ros::Publisher init_pose_pub_;
 
         // tf
         tf2_ros::Buffer tf_buffer_;

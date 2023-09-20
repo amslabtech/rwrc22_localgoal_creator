@@ -1,4 +1,5 @@
 #include "localgoal_creator/localgoal_creator.h"
+#include "geometry_msgs/PoseWithCovarianceStamped.h"
 
 LocalGoalCreator::LocalGoalCreator() : nh_(),
                                        private_nh_("~")
@@ -27,11 +28,12 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
     local_goal_pub_ = nh_.advertise<geometry_msgs::PoseStamped>("/local_goal", 1);
     current_checkpoint_id_pub_ = nh_.advertise<std_msgs::Int32>("/current_checkpoint", 1);
     skip_node_flag_pub_ = nh_.advertise<std_msgs::Bool>("/skip_node_flag", 1);
+    init_pose_pub_ = nh_.advertise<geometry_msgs::PoseWithCovarianceStamped>("/initialpose", 1);
 
     checkpoint_received_ = false;
     node_edge_map_received_ = false;
     current_pose_updated_ = false;
-    current_checkpoint_id_ = start_node_;
+    current_checkpoint_id_ = -1;
     local_goal_index_ = 0;
     checkpoint_update_threshold_ = local_goal_dist_;
     update_angle_threshold_ = M_PI / 2.0;
@@ -287,6 +289,22 @@ void LocalGoalCreator::update_checkpoint(int &current_checkpoint_id, int &next_c
     ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id);
 }
 
+void LocalGoalCreator::initialize_checkpoint()
+{
+    while (current_checkpoint_id_ != start_node_)
+    {
+        update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+    }
+
+    std::vector<geometry_msgs::PoseStamped> node2node_pose;
+    geometry_msgs::PoseWithCovarianceStamped init_pose;
+    get_node2node_poses(current_checkpoint_id_, next2_checkpoint_id_, node2node_pose);
+    init_pose.header.frame_id = "map";
+    init_pose.header.stamp = ros::Time::now();
+    init_pose.pose.pose = node2node_pose[0].pose;
+
+    init_pose_pub_.publish(init_pose);
+}
 
 void LocalGoalCreator::process()
 {
