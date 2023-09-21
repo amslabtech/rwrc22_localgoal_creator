@@ -133,6 +133,7 @@ void LocalGoalCreator::get_node2node_poses(int node0_id, int node1_id, std::vect
         node2node_poses.push_back(node2node_pose);
 
         // ROS_INFO("node2node_pose: %f, %f", node2node_pose.pose.position.x, node2node_pose.pose.position.y);
+        ROS_ERROR_STREAM("node2node_pose: " << node2node_pose);
 
         if (node2node_poses.size() > 1e6)
             ROS_ERROR("node2node_poses.size() > 1e6");
@@ -298,12 +299,18 @@ void LocalGoalCreator::initialize_checkpoint()
         update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
     }
 
-    std::vector<geometry_msgs::PoseStamped> node2node_pose;
     geometry_msgs::PoseWithCovarianceStamped init_pose;
-    get_node2node_poses(current_checkpoint_id_, next2_checkpoint_id_, node2node_pose);
+    int init_node_idx = find(node_id_list_.begin(), node_id_list_.end(), current_checkpoint_id_) - node_id_list_.begin();
+    int next_node_idx = find(node_id_list_.begin(), node_id_list_.end(), next_checkpoint_id_) - node_id_list_.begin();
+    geometry_msgs::Point init_node_pose = node_edge_map_.nodes[init_node_idx].point;
+    geometry_msgs::Point next_node_pose = node_edge_map_.nodes[next_node_idx].point;
+    double init_direction = atan2(next_node_pose.y - init_node_pose.y, next_node_pose.x - init_node_pose.x);
     init_pose.header.frame_id = "map";
     init_pose.header.stamp = ros::Time::now();
-    init_pose.pose.pose = node2node_pose[0].pose;
+    init_pose.pose.pose.position.x = init_node_pose.x;
+    init_pose.pose.pose.position.y = init_node_pose.y;
+    init_pose.pose.pose.position.z = 0;
+    init_pose.pose.pose.orientation = tf::createQuaternionMsgFromYaw(init_direction);
 
     init_pose_pub_.publish(init_pose);
 }
