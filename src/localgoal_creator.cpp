@@ -133,7 +133,6 @@ void LocalGoalCreator::get_node2node_poses(int node0_id, int node1_id, std::vect
         node2node_poses.push_back(node2node_pose);
 
         // ROS_INFO("node2node_pose: %f, %f", node2node_pose.pose.position.x, node2node_pose.pose.position.y);
-        ROS_ERROR_STREAM("node2node_pose: " << node2node_pose);
 
         if (node2node_poses.size() > 1e6)
             ROS_ERROR("node2node_poses.size() > 1e6");
