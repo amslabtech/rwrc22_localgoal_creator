@@ -326,6 +326,12 @@ void LocalGoalCreator::process()
         {
             initialize_checkpoint();
             checkpoint_initialized_ = true;
+            std_msgs::Int32 current_checkpoint_id_msg;
+            current_checkpoint_id_msg.data = current_checkpoint_id_;
+            current_checkpoint_id_pub_.publish(current_checkpoint_id_msg);
+            std_msgs::Int32 next_checkpoint_id_msg;
+            next_checkpoint_id_msg.data = next_checkpoint_id_;
+            next_checkpoint_id_pub_.publish(next_checkpoint_id_msg);
         }
 
         if (checkpoint_received_ && node_edge_map_received_ && current_pose_updated_)
@@ -442,7 +448,7 @@ void LocalGoalCreator::process()
             current_checkpoint_id_msg.data = current_checkpoint_id_;
             current_checkpoint_id_pub_.publish(current_checkpoint_id_msg);
             std_msgs::Int32 next_checkpoint_id_msg;
-            current_checkpoint_id_msg.data = next_checkpoint_id_;
+            next_checkpoint_id_msg.data = next_checkpoint_id_;
             next_checkpoint_id_pub_.publish(next_checkpoint_id_msg);
         }
 
