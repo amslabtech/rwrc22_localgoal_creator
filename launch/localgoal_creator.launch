@@ -6,10 +6,10 @@
     <arg name="local_goal_interval" default="1.0"/>
     <arg name="local_goal_dist"     default="5.0"/>
     <arg name="stop_radius_min"     default="0.75"/>
-    <arg name="at_stop_node_radius"     default="0.10"/>
+    <arg name="at_stop_node_radius" default="0.35"/>
     <arg name="count_start_radius"  default="1.5"/>
     <arg name="skip_timecount"      default="7.0"/>
-    <arg name="start_delay" default="10.0"/>
+    <arg name="start_delay" default="1.0"/>
     <!-- subscribe topic -->
     <arg name="checkpoint_topic"     default="/node_edge_map/checkpoint"/>
     <arg name="node_edge_map_topic"  default="/node_edge_map"/>
