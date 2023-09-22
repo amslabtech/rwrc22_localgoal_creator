@@ -7,6 +7,7 @@
     <arg name="local_goal_dist"     default="5.0"/>
     <arg name="stop_radius_min"     default="0.75"/>
     <arg name="at_stop_node_radius" default="0.35"/>
+    <arg name="at_stop_node_direction" default="0.30"/>
     <arg name="count_start_radius"  default="1.5"/>
     <arg name="skip_timecount"      default="7.0"/>
     <arg name="start_delay" default="1.0"/>
@@ -30,6 +31,7 @@
         <param name="local_goal_dist"     value="$(arg local_goal_dist)"/>
         <param name="stop_radius_min"     value="$(arg stop_radius_min)"/>
         <param name="at_stop_node_radius"     value="$(arg at_stop_node_radius)"/>
+        <param name="at_stop_node_direction"     value="$(arg at_stop_node_direction)"/>
         <param name="count_start_radius"  value="$(arg count_start_radius)"/>
         <param name="skip_timecount"      value="$(arg skip_timecount)"/>
         <!-- topic -->

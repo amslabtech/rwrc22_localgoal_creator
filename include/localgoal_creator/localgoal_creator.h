@@ -49,6 +49,7 @@ class LocalGoalCreator
         double local_goal_dist_;
         double stop_radius_min_;
         double at_stop_node_radius_;
+        double at_stop_node_direction_;
         double count_start_radius_;
         double skip_timecount_;
         double update_angle_threshold_;
