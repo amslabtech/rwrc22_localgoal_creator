@@ -444,20 +444,20 @@ void LocalGoalCreator::process()
             //     local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
             // }
 
-            double stop_radius, stop_direction;
+            double update_radius, update_direction;
             if (is_stop_node_)
             {
-                stop_radius = at_stop_node_radius_;
-                stop_direction = at_stop_node_direction_;
+                update_radius = at_stop_node_radius_;
+                update_direction = at_stop_node_direction_;
             }
             else
             {
-                stop_radius = stop_radius_min_;
-                stop_direction = M_PI;
+                update_radius = stop_radius_min_;
+                update_direction = M_PI;
             }
 
 
-            if (reached_checkpoint(stop_radius, stop_direction, current_checkpoint_id_, next_checkpoint_id_, current_pose_))
+            if (reached_checkpoint(update_radius, update_direction, next_checkpoint_id_, next2_checkpoint_id_, current_pose_) )
             {
                 ROS_WARN("reached_checkpoint");
                 // if (checkpoint_.data.size() == 0)
