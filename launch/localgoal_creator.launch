@@ -9,6 +9,7 @@
     <arg name="at_stop_node_radius"     default="0.10"/>
     <arg name="count_start_radius"  default="1.5"/>
     <arg name="skip_timecount"      default="7.0"/>
+    <arg name="start_delay" default="10.0"/>
     <!-- subscribe topic -->
     <arg name="checkpoint_topic"     default="/node_edge_map/checkpoint"/>
     <arg name="node_edge_map_topic"  default="/node_edge_map"/>
@@ -21,7 +22,7 @@
     <arg name="checkpoint_file" default=""/>
 
     <!-- node -->
-    <node pkg="rwrc22_localgoal_creator" type="rwrc22_localgoal_creator_node" name="localgoal_creator_node" output="screen">
+    <node pkg="rwrc22_localgoal_creator" type="rwrc22_localgoal_creator_node" name="localgoal_creator_node" output="screen" launch-prefix="bash -c 'sleep $(arg start_delay); $0 $@' " >
         <!-- param -->
         <param name="start_node"          value="$(arg start_node)"/>
         <param name="goal_node"           value="$(arg goal_node)"/>
