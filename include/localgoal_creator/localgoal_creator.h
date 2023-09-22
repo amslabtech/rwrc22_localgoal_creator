@@ -16,6 +16,7 @@
 
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2/utils.h>
 
 class LocalGoalCreator
 {
@@ -35,7 +36,7 @@ class LocalGoalCreator
         void get_node2node_poses(int node0_id, int node1_id, std::vector<geometry_msgs::PoseStamped>& node2node_poses);
         void calc_checkpoint_update_threshold(int current_id, int next_id, int next2_id, double& threshold);
         void calc_checkpoint_update_angle_threshold(int current_id, int next_id, int next2_id, double& threshold);
-        bool reached_checkpoint(double determination_radius, int current_checkpoint_id, int next_checkpoint_id, geometry_msgs::PoseStamped current_pose);
+        bool reached_checkpoint(double radius, double direction, int current_id, int next_id, geometry_msgs::PoseStamped pose);
         geometry_msgs::PoseStamped get_local_goal(std::vector<geometry_msgs::PoseStamped> &node2node_poses, int &poses_index, geometry_msgs::PoseStamped current_pose);
         bool reached_goal(int goal_node_id, geometry_msgs::PoseStamped current_pose);
         void update_checkpoint(int &current_checkpoint_id, int &next_checkpoint_id);
@@ -48,6 +49,8 @@ class LocalGoalCreator
         double local_goal_interval_;
         double local_goal_dist_;
         double stop_radius_min_;
+        double at_stop_node_radius_;
+        double at_stop_node_direction_;
         double count_start_radius_;
         double skip_timecount_;
         double update_angle_threshold_;

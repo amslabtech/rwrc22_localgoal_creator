@@ -12,6 +12,8 @@ LocalGoalCreator::LocalGoalCreator() : nh_(),
     private_nh_.param("local_goal_interval", local_goal_interval_, 1.0);
     private_nh_.param("local_goal_dist", local_goal_dist_, 5.0);
     private_nh_.param("stop_radius_min", stop_radius_min_, 0.75);
+    private_nh_.param("at_stop_node_radius", at_stop_node_radius_, 0.10);
+    private_nh_.param("at_stop_node_direction", at_stop_node_direction_, 0.30);
     private_nh_.param("local_goal_frame_id", local_goal_frame_id_, std::string("base_link"));
     // private_nh_.param("count_start_radius", count_start_radius_, 1000.0);
     private_nh_.param("count_start_radius", count_start_radius_, 1.5);
@@ -198,34 +200,32 @@ void LocalGoalCreator::calc_checkpoint_update_angle_threshold(int current_id, in
     }
 }
 
-bool LocalGoalCreator::reached_checkpoint(double determination_radius, int current_checkpoint_id, int next_checkpoint_id, geometry_msgs::PoseStamped current_pose)
+bool LocalGoalCreator::reached_checkpoint(double determination_radius, double determination_direction, int current_checkpoint_id, int next_checkpoint_id, geometry_msgs::PoseStamped current_pose)
 {
     // ROS_INFO("------------------------------------");
     // ROS_INFO("reached_checkpoint");
-    int next_checkpoint_idx = find(node_id_list_.begin(), node_id_list_.end(), next_checkpoint_id) - node_id_list_.begin();
-    double next_checkpoint_x = node_edge_map_.nodes[next_checkpoint_idx].point.x;
-    double next_checkpoint_y = node_edge_map_.nodes[next_checkpoint_idx].point.y;
     int current_checkpoint_idx = find(node_id_list_.begin(), node_id_list_.end(), current_checkpoint_id) - node_id_list_.begin();
     double current_checkpoint_x = node_edge_map_.nodes[current_checkpoint_idx].point.x;
     double current_checkpoint_y = node_edge_map_.nodes[current_checkpoint_idx].point.y;
-    double current_pose_x = current_pose.pose.position.x;
-    double current_pose_y = current_pose.pose.position.y;
+    int next_checkpoint_idx = find(node_id_list_.begin(), node_id_list_.end(), next_checkpoint_id) - node_id_list_.begin();
+    double next_checkpoint_x = node_edge_map_.nodes[next_checkpoint_idx].point.x;
+    double next_checkpoint_y = node_edge_map_.nodes[next_checkpoint_idx].point.y;
 
-    double next2current_checkpoint_x = current_checkpoint_x - next_checkpoint_x;
-    double next2current_checkpoint_y = current_checkpoint_y - next_checkpoint_y;
-    double next2current_pose_x = current_pose_x - next_checkpoint_x;
-    double next2current_pose_y = current_pose_y - next_checkpoint_y;
-    double next2current_checkpoint_dist = sqrt(pow(next2current_checkpoint_x, 2) + pow(next2current_checkpoint_y, 2));
-    double next2current_pose_dist = sqrt(pow(next2current_pose_x, 2) + pow(next2current_pose_y, 2));
-    double product = next2current_checkpoint_x * next2current_pose_x + next2current_checkpoint_y * next2current_pose_y;
-    double cos_theta = product / (next2current_checkpoint_dist * next2current_pose_dist); // 1.0(0 deg) ~ 0.0(90 deg) ~ -1.0(180 deg)
-    cos_theta = (1.0 - cos_theta) / 2.0; // 0.0(0 deg) ~ 0.5(90 deg) ~ 1.0(180 deg)
-    double angle_diff = cos_theta * M_PI;
+    double current2next_direction = atan2(next_checkpoint_y - current_checkpoint_y, next_checkpoint_x - current_checkpoint_x);
+    double current_yaw = tf2::getYaw(current_pose.pose.orientation);
+
+    double angle_diff = current2next_direction - current_yaw;
+    if (angle_diff < -M_PI)
+        angle_diff += 2*M_PI;
+    if (angle_diff > M_PI)
+        angle_diff -= 2*M_PI;
+    angle_diff = fabs(angle_diff);
 
     bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < determination_radius;
+    bool is_inside_angle = angle_diff <= determination_direction;
     // bool is_inside_dist = sqrt(pow(current_pose.pose.position.x - next_checkpoint_x, 2) + pow(current_pose.pose.position.y - next_checkpoint_y, 2)) < checkpoint_update_threshold_;
-    bool is_outside_angle = update_angle_threshold_ < M_PI / 4.0 ? false : angle_diff > update_angle_threshold_;
-    return is_inside_dist || is_outside_angle;
+
+    return is_inside_dist && is_inside_angle;
 }
 
 geometry_msgs::PoseStamped LocalGoalCreator::get_local_goal(std::vector<geometry_msgs::PoseStamped> &node2node_poses, int &poses_index, geometry_msgs::PoseStamped current_pose)
@@ -381,64 +381,105 @@ void LocalGoalCreator::process()
             if (local_goal_poses_.size() == 0)
             {
                 get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-                calc_checkpoint_update_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, checkpoint_update_threshold_);
-                calc_checkpoint_update_angle_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, update_angle_threshold_);
+                // calc_checkpoint_update_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, checkpoint_update_threshold_);
+                // calc_checkpoint_update_angle_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, update_angle_threshold_);
             }
 
-            calc_checkpoint_update_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, checkpoint_update_threshold_);
-            calc_checkpoint_update_angle_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, update_angle_threshold_);
+            // calc_checkpoint_update_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, checkpoint_update_threshold_);
+            // calc_checkpoint_update_angle_threshold(current_checkpoint_id_, next_checkpoint_id_, next2_checkpoint_id_, update_angle_threshold_);
 
-            if(reached_checkpoint(count_start_radius_, current_checkpoint_id_, next_checkpoint_id_, current_pose_)){
+            // if(reached_checkpoint(count_start_radius_, current_checkpoint_id_, next_checkpoint_id_, current_pose_)){
+            //
+            //         if(not count_started_){
+            //             t_start_ = ros::Time::now();
+            //             count_started_ = true;
+            //         }
+            //
+            //         if(not reached_checkpoint(stop_radius_min_, current_checkpoint_id_, next_checkpoint_id_, current_pose_)){
+            //             ROS_WARN("Skip in  %lf seconds.", (t_start_ + ros::Duration(skip_timecount_)- ros::Time::now()).toSec());
+            //
+            //             local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+            //            if(t_start_ + ros::Duration(skip_timecount_) < ros::Time::now()){
+            //            // if(skip_timecount_ - (ros::Time::now() - t_start_).nsec/std::pow(10, 9) <= 0){
+            //
+            //                // count_started_ = false;
+            //                // // if (checkpoint_.data.size() == 0)
+            //                // // {
+            //                // //     ROS_WARN("Checkpoint is empty");
+            //                // /// }
+            //                // ///
+            //                // local_goal_index_ = 0;
+            //                // update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+            //                // get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+            //                // local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+            //                // ROS_WARN("==========skip checkpoint==========");
+            //                std_msgs::Bool skip_flag;
+            //                skip_flag.data = true;
+            //                skip_node_flag_pub_.publish(skip_flag);
+            //                count_started_=false;
+            //                ROS_WARN("==========skip checkpoint==========");
+            //                update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+            //                local_goal_index_ = 0;
+            //                get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+            //                local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+            //            }
+            //         }
+            //         else
+            //         {
+            //             count_started_=false;
+            //             ROS_WARN("reached_checkpoint");
+            //             update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
+            //             local_goal_index_ = 0;
+            //             get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+            //             local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+            //         }
+            //
+            // }
+            // else
+            // {
+            //     local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
+            // }
 
-                    if(not count_started_){
-                        t_start_ = ros::Time::now();
-                        count_started_ = true;
-                    }
+            double update_radius, update_direction;
+            if (is_stop_node_)
+            {
+                update_radius = at_stop_node_radius_;
+                update_direction = at_stop_node_direction_;
+            }
+            else
+            {
+                update_radius = stop_radius_min_;
+                update_direction = M_PI;
+            }
 
-                    if(not reached_checkpoint(stop_radius_min_, current_checkpoint_id_, next_checkpoint_id_, current_pose_)){
-                        ROS_WARN("Skip in  %lf seconds.", (t_start_ + ros::Duration(skip_timecount_)- ros::Time::now()).toSec());
 
-                        local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
-                       if(t_start_ + ros::Duration(skip_timecount_) < ros::Time::now()){
-                       // if(skip_timecount_ - (ros::Time::now() - t_start_).nsec/std::pow(10, 9) <= 0){
+            if (reached_checkpoint(update_radius, update_direction, current_checkpoint_id_,  next_checkpoint_id_, current_pose_) )
+            {
+                ROS_WARN("reached_checkpoint");
+                // if (checkpoint_.data.size() == 0)
+                // {
+                //     ROS_WARN("Checkpoint is empty");
+                // }
+                local_goal_index_ = 0;
+                current_checkpoint_id_ = next_checkpoint_id_;
+                while (current_checkpoint_id_ == next_checkpoint_id_)
+                {
+                    checkpoint_.data.erase(checkpoint_.data.begin());
+                    next_checkpoint_id_ = checkpoint_.data.size() > 0 ? checkpoint_.data[0] : goal_node_;
+                    next2_checkpoint_id_ = checkpoint_.data.size() > 1 ? checkpoint_.data[1] : goal_node_;
+                }
+                get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
+                local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
 
-                           // count_started_ = false;
-                           // // if (checkpoint_.data.size() == 0)
-                           // // {
-                           // //     ROS_WARN("Checkpoint is empty");
-                           // /// }
-                           // ///
-                           // local_goal_index_ = 0;
-                           // update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
-                           // get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-                           // local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
-                           // ROS_WARN("==========skip checkpoint==========");
-                           std_msgs::Bool skip_flag;
-                           skip_flag.data = true;
-                           skip_node_flag_pub_.publish(skip_flag);
-                           count_started_=false;
-                           ROS_WARN("==========skip checkpoint==========");
-                           update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
-                           local_goal_index_ = 0;
-                           get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-                           local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
-                       }
-                    }
-                    else
-                    {
-                        count_started_=false;
-                        ROS_WARN("reached_checkpoint");
-                        update_checkpoint(current_checkpoint_id_, next_checkpoint_id_);
-                        local_goal_index_ = 0;
-                        get_node2node_poses(current_checkpoint_id_, next_checkpoint_id_, local_goal_poses_);
-                        local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
-                    }
-
+                ROS_WARN("checkpoint updated");
+                ROS_WARN("current_checkpoint_id: %d", current_checkpoint_id_);
+                ROS_WARN("next_checkpoint_id: %d", next_checkpoint_id_);
             }
             else
             {
                 local_goal_ = get_local_goal(local_goal_poses_, local_goal_index_, current_pose_);
             }
+
             // local_goal_pub_.publish(local_goal_); // frame_id: map
             local_goal_pub_.publish(local_goal_base_link_);
             current_pose_updated_ = false;
